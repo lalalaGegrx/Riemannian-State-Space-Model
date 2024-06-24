@@ -3,13 +3,17 @@ function [A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum(Y,dim_
 
     [dim_y,~,T]=size(Y);
     max_iter=24;
-    max_iter_grad=2e3;
-    mini_state=1e-4;
+    max_iter_grad=1e3;
+    mini_state=1e-2;
     mini_measure=1e-2;
-    lr_state=1e-3;
-    lr_measure=1e-3;
+    lr_state=1e-2;
+    lr_measure=1e-2;
+    m1_secure=[0.01,2];
+    m2_secure=[0.01,2];
+    sig1_secure=[0.05,0.9];
+    sig2_secure=[0.05,0.9];
     eps=1e-5;
-    T_start=1;
+    T_start=50;
 
     A_est=eye(dim_x)*0.99;
     H_est=normrnd(0,1,[dim_x,dim_y]);
@@ -35,7 +39,7 @@ function [A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum(Y,dim_
         v_H=zeros(dim_x,dim_y);
         beta1=0.9;
         beta2=0.99;
-        if mod(iter_em,3)==2
+        if mod(iter_em,2)==0
             for iter_grad=1:max_iter_grad
                 if abs(cost_state-cost_state_last)>mini_state
                     cost_state_last=cost_state;
@@ -60,10 +64,36 @@ function [A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum(Y,dim_
                     v_A_hat=v_A/(1-beta2^iter_grad);
 
                     A_est=A_est-lr_state*mome_A_hat./(sqrt(v_A_hat)+eps);
-                    m1_est=m1_est-lr_state*mome_m1_hat/(sqrt(v_m1_hat)+eps);
+                    m1_tem=m1_est-lr_state*mome_m1_hat/(sqrt(v_m1_hat)+eps);
+                    if m1_tem>m1_secure(1)&&m1_tem<m1_secure(2)
+                        m1_est=m1_tem;
+                    end
                 end
             end
-        elseif mod(iter_em,3)==1
+            
+            e1=zeros(1,T-1);
+            for i=T_start:T-1
+                y=A_est'*X_est_pf(:,:,i)*A_est+m1_est*eye(dim_x);
+                e1(i)=distance_riemann(X_est_pf(:,:,i+1),y)^2;
+            end
+            sig1_est=sqrt(sum(e1)/(dim_x*(T-T_start)));
+            
+            e2=zeros(1,T);
+            for i=T_start:T
+                y=H_est'*X_est_pf(:,:,i)*H_est+m2_est*eye(dim_y);
+                e2(i)=distance_riemann(Y(:,:,i),y)^2;
+            end
+            sig2_est=sqrt(sum(e2)/(dim_y*(T-T_start+1)));
+            
+            % sig_tem=[sig1_est,sig2_est]*matrix_approximation_simulation;
+            sig_tem=[sig1_est,sig2_est]*matrix_approximation_seed;
+            if sig_tem(1)>sig1_secure(1)&&sig_tem(1)<sig1_secure(2)
+                sig_est(1)=sig_tem(1);
+            end
+            if sig_tem(2)>sig2_secure(1)&&sig_tem(2)<sig2_secure(2)
+                sig_est(2)=sig_tem(2);
+            end
+        else
             for iter_grad=1:max_iter_grad
                 if abs(cost_measure-cost_measure_last)>mini_measure
                     cost_measure_last=cost_measure;
@@ -71,6 +101,7 @@ function [A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum(Y,dim_
                     for k=T_start:T
                         cost_measure=cost_measure+distance_riemann(Y(:,:,k),H_est'*X_est_pf(:,:,k)*H_est+m2_est*eye(dim_y))^2;
                     end
+                    cost_measure
                     if imag(cost_measure)~=0
                         break;
                     end
@@ -88,26 +119,12 @@ function [A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum(Y,dim_
                     v_H_hat=v_H/(1-beta2^iter_grad);
 
                     H_est=H_est-lr_measure*mome_H_hat./(sqrt(v_H_hat)+eps);
-                    m2_est=m2_est-lr_measure*mome_m2_hat/(sqrt(v_m2_hat)+eps);
+                    m2_tem=m2_est-lr_measure*mome_m2_hat/(sqrt(v_m2_hat)+eps);
+                    if m2_tem>m2_secure(1)&&m2_tem<m2_secure(2)
+                        m2_est=m2_tem;
+                    end
                 end
             end
-        else
-            e1=zeros(1,T-1);
-            for i=T_start:T-1
-                y=A_est'*X_est_pf(:,:,i)*A_est+m1_est*eye(dim_x);
-                e1(i)=distance_riemann(X_est_pf(:,:,i+1),y)^2;
-            end
-            sig1_est=sqrt(sum(e1)/(dim_x*(T-1-T_start)));
-            
-            e2=zeros(1,T);
-            for i=T_start:T
-                y=H_est'*X_est_pf(:,:,i)*H_est+m2_est*eye(dim_y);
-                e2(i)=distance_riemann(Y(:,:,i),y)^2;
-            end
-            sig2_est=sqrt(sum(e2)/(dim_y*(T-T_start)));
-            
-            % sig_est=[sig1_est,sig2_est]*matrix_approximation_simulation;
-            sig_est=[sig1_est,sig2_est]*matrix_approximation_seed;
         end
     end
 
