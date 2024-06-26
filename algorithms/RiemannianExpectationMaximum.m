@@ -2,10 +2,10 @@ function [A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum(Y,dim_
     load('.\utils\RiemannianGaussianApproximation.mat');
 
     [dim_y,~,T]=size(Y);
-    max_iter=24;
+    max_iter=18;
     max_iter_grad=1e3;
     mini_state=1e-2;
-    mini_measure=1e-2;
+    mini_measure=1e-1;
     lr_state=1e-2;
     lr_measure=1e-2;
     m1_secure=[0.01,2];
