@@ -26,7 +26,7 @@ function [A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum_Emotio
         disp(iter_em)
         % E step
         tic;
-        X_est_pf=RiemannianParticleFilter(A_est,H_est,sig_est(1),sig_est(2),m1_est,m2_est,N,Y,X_init);
+        X_est_pf=real(RiemannianParticleFilter(A_est,H_est,sig_est(1),sig_est(2),m1_est,m2_est,N,Y,X_init));
         toc;
 
         % M step
