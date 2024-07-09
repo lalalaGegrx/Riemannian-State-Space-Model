@@ -1,4 +1,4 @@
-function [A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum(Y,dim_x,N,X_init)
+function [A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum_Emotion(Y,dim_x,N,X_init)
     load('.\utils\RiemannianGaussianApproximation.mat');
 
     [dim_y,~,T]=size(Y);
@@ -11,7 +11,7 @@ function [A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum(Y,dim_
     m1_secure=[0.01,2];
     m2_secure=[0.01,2];
     sig1_secure=[0.05,0.9];
-    sig1_predict=0.7;
+    sig1_predict=0.6;
     sig2_secure=[0.05,0.9];
     sig2_predict=0.1;
     eps=1e-5;
