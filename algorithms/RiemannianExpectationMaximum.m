@@ -22,7 +22,7 @@ function [A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum(Y,dim_
     sig_est=[0.5,0.5];
     for iter_em=1:max_iter
         % E step
-        X_est_pf=RiemannianParticleFilter(A_est,H_est,sig_est(1),sig_est(2),m1_est,m2_est,N,Y,X_init);
+        X_est_pf=real(RiemannianParticleFilter(A_est,H_est,sig_est(1),sig_est(2),m1_est,m2_est,N,Y,X_init));
 
         % M step
         cost_state_last=1e100;
