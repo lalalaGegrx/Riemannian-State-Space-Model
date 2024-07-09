@@ -13,7 +13,7 @@ T_trial=175;
 
 %%
 disp('Running RiemannianExpectationMaximum Algorithm ...')
-[A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum_Emotion(Y,dim_x,N,X_init);
+[A_est,H_est,sig_est,m1_est,m2_est]=RiemannianExpectationMaximum(Y,dim_x,N,X_init);
 X_estimation=real(RiemannianParticleFilter(A_est,H_est,sig_est(1),sig_est(2),m1_est,m2_est,N,Y,X_init));
 X_vector=zeros(T-1,(dim_x*(dim_x+1))/2);
 for i=2:T
