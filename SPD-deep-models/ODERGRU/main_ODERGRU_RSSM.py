@@ -139,5 +139,3 @@ if __name__ == "__main__":
     mf1_mean = sum(mf1_l) / args.subjects
     print(sum(acc_l) / args.subjects)
     print(sum(mf1_l) / args.subjects)
-
-    sio.savemat('/data/lalalagegrx/RiemannianRNN/EcoGLibrary/SEED/Results/ODERGRU/ODERGRU_RSSM_10fold_shuffle_results.mat', {'acc':acc_l, 'mf1': mf1_l})
